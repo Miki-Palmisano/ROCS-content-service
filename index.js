@@ -11,9 +11,7 @@ const GATEWAY_URL = process.env.GATEWAY_URL;
 
 const app = express();
 
-app.use(cors({
-    origin: `${GATEWAY_URL}`
-}));
+app.use(cors());
 
 app.use(express.json());
 
