@@ -12,7 +12,7 @@ const GATEWAY_URL = process.env.GATEWAY_URL;
 corsOption = {
     origin: GATEWAY_URL,
     optionsSuccessStatus: 200
-}
+} 
 
 const app = express();
 
