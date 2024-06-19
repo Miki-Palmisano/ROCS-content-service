@@ -11,14 +11,10 @@ const GATEWAY_URL = process.env.GATEWAY_URL;
 
 const app = express();
 
-app.use(cors({
-    origin: GATEWAY_URL
-}));
-
 app.use(express.json());
 
-app.use('/films', collectionFilms)
-app.use('/series', collectionSeries)
+app.use('/films', cors(), collectionFilms)
+app.use('/series', cors(), collectionSeries)
 
 app.listen(PORT, () => {
     console.log(`Service Content listening on port ${PORT}`)
