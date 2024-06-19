@@ -5,8 +5,10 @@ if (process.env.NODE_ENV !== 'production') {
 const express = require('express');
 const collectionFilms = require('./routes/films')
 const collectionSeries = require('./routes/series')
+const cors = require('cors');
 
 const app = express();
+app.use(cors());
 
 app.use(express.json());
 app.use('/content/films', collectionFilms)
