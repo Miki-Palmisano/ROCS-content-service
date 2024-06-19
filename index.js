@@ -10,12 +10,7 @@ const PORT = process.env.PORT || 3001;
 
 const app = express();
 
-const corsOptions = {
-    origin: '*',
-    optionsSuccessStatus: 200
-}
-
-app.use(cors(corsOptions));
+app.use(express.json());
 
 app.use('/content/films', collectionFilms)
 app.use('/content/series', collectionSeries)
