@@ -15,8 +15,8 @@ app.use(cors());
 
 app.use(express.json());
 
-app.use('/content/films', collectionFilms)
-app.use('/content/series', collectionSeries)
+app.use('/films', collectionFilms)
+app.use('/series', collectionSeries)
 
 app.listen(PORT, () => {
     console.log(`Service Content listening on port ${PORT}`)
