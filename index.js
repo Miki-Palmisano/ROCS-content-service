@@ -11,9 +11,9 @@ const PORT = process.env.PORT || 3001;
 const app = express();
 
 app.use(express.json());
-
-app.use('/films', cors(), collectionFilms)
-app.use('/series', cors(), collectionSeries)
+app.use(cors());
+app.use('/films', collectionFilms)
+app.use('/series', collectionSeries)
 
 app.listen(PORT, () => {
     console.log(`Service Content listening on port ${PORT}`)
