@@ -1,8 +1,11 @@
-require('dotenv').config();
 const express = require('express');
 const axios = require('axios');
 const collectionFilms = require('./routes/films')
 const collectionSeries = require('./routes/series')
+
+if(process.env.NODE_ENV !== 'production') {
+    require('dotenv').config();
+}
 
 const app = express();
 
