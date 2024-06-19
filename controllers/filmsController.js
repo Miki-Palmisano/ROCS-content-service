@@ -2,18 +2,18 @@ const axios = require('axios');
 const API_KEY = process.env.TMDB_API_KEY;
 
 const options = {
-  method: 'GET',
-  url: 'https://api.themoviedb.org/3/discover/movie',
-  headers: {
-    accept: 'application/json',
-    Authorization: `Bearer ${API_KEY}`
-  }, 
-  params: {
-    //with_watch_providers: '8|9', // Netflix and Amazon Prime
-    watch_region: 'IT',
-    language: 'it-IT',
-    sort_by: 'popularity.desc',
-  }
+    method: 'GET',
+    url: 'https://api.themoviedb.org/3/discover/movie',
+    headers: {
+      accept: 'application/json',
+      Authorization: `Bearer ${API_KEY}`
+    }, 
+    params: {
+      //with_watch_providers: '8|9', // Netflix and Amazon Prime
+      watch_region: 'IT',
+      language: 'it-IT',
+      sort_by: 'popularity.desc',
+    }
 };
 
 const getAllFilms = async (req, res) => {
