@@ -9,12 +9,17 @@ const cors = require('cors');
 const PORT = process.env.PORT || 3001;
 const GATEWAY_URL = process.env.GATEWAY_URL;
 
+corsOption = {
+    origin: GATEWAY_URL,
+    optionsSuccessStatus: 200
+}
+
 const app = express();
 
 app.use(express.json());
 
-app.use('/films', cors(), collectionFilms)
-app.use('/series', cors(), collectionSeries)
+app.use('/films', cors(corsOption), collectionFilms)
+app.use('/series', cors(corsOption), collectionSeries)
 
 app.listen(PORT, () => {
     console.log(`Service Content listening on port ${PORT}`)
