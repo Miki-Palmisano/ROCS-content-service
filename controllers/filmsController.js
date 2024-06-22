@@ -121,8 +121,8 @@ const getFilmVideoById = async (req, res) => {
         sort_by: 'popularity'
       }
     });
-
-    res.json({key: videoResponse.data.results[0].key, site: videoResponse.data.results[0].site});
+    console.log(videoResponse.data.results)
+    Object.keys(videoResponse.data.results).length === 0 ? res.json({key: null, site: null}) : res.json({key: videoResponse.data.results[0].key, site: videoResponse.data.results[0].site});
   }catch(error){
     console.error(error);
   }
