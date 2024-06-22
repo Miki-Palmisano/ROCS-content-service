@@ -91,7 +91,7 @@ const getFilmInfoById = async (req, res) => {
           id: film.id,
           title: film.title,
           genres: film.genres,
-          budget: film.revenue,
+          budget: film.budget,
           description: film.overview,
           rating: film.vote_average,
           collection: film.belongs_to_collection,
