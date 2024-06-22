@@ -93,8 +93,10 @@ const getFilmInfoById = async (req, res) => {
           genres: film.genres,
           budget: film.budget,
           description: film.overview,
+          release_date: film.release_date,
           rating: film.vote_average,
-          collection: film.belongs_to_collection,
+          production_companies: film.production_companies,
+          img: "https://image.tmdb.org/t/p/w780"+film.poster_path,
           tagline: film.tagline
       };
     res.json(infoFilms);
