@@ -19,7 +19,7 @@ const getAllFilms = async (req, res) => {
       });
         const films = response.data.results.map((film) => {
             return {
-                type: "movie", 
+                type: "films", 
                 id: film.id, 
                 title: film.title, 
                 description: film.overview, 
@@ -54,7 +54,7 @@ const getFilmGenreById = async (req, res) => {
     });
     const Genrefilms = genreResponse.data.results.map((film) => {
       return {
-          type: "movie", 
+          type: "films", 
           id: film.id, 
           title: film.title, 
           description: film.overview, 
@@ -70,7 +70,66 @@ const getFilmGenreById = async (req, res) => {
   }
 }
 
+const getFilmInfoById = async (req, res) => {
+  try {
+    const infoResponse = await axios.request({
+      method: 'GET',
+      url: `https://api.themoviedb.org/3/movie/${req.params.filmsId}`,
+      headers: {
+        accept: 'application/json',
+        Authorization: `Bearer ${API_KEY}`
+      }, 
+      params: {
+        watch_region: 'IT',
+        language: 'it-IT',
+        sort_by: 'popularity_desc'
+      }
+    });
+    const film = infoResponse.data;
+    const infoFilms = {
+          type: "films",
+          id: film.id,
+          title: film.title,
+          genres: film.genres,
+          budget: film.revenue,
+          description: film.overview,
+          rating: film.vote_average,
+          collection: film.belongs_to_collection,
+          tagline: film.tagline
+      };
+    res.json(infoFilms);
+  }catch(error){
+    console.error(error);
+  }
+
+}
+
+const getFilmVideoById = async (req, res) => {
+  try {
+    const videoResponse = await axios.request({
+      method: 'GET',
+      url: `https://api.themoviedb.org/3/movie/${req.params.filmsId}/videos`,
+      headers: {
+        accept: 'application/json',
+        Authorization: `Bearer ${API_KEY}`
+      }, 
+      params: {
+        watch_region: 'IT',
+        language: 'it-IT',
+        sort_by: 'popularity'
+      }
+    });
+
+    res.json({key: videoResponse.data.results[0].key, site: videoResponse.data.results[0].site});
+  }catch(error){
+    console.error(error);
+  }
+}
+
+
 module.exports = {
     getAllFilms,
-    getFilmGenreById
+    getFilmGenreById,
+    getFilmInfoById,
+    getFilmVideoById
 }

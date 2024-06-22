@@ -20,7 +20,7 @@ const getAllSeries = async (req, res) => {
         console.log(response.data.results);
         const series = response.data.results.map((serie) => {
             return {
-                type: "serie", 
+                type: "series", 
                 id: serie.id, 
                 title: serie.name, 
                 description: serie.overview, 
@@ -55,7 +55,7 @@ const getSeriesGenreById = async (req, res) => {
       });
       const genreSeries = genreResponse.data.results.map((serie) => {
         return {
-            type: "movie", 
+            type: "series", 
             id: serie.id, 
             title: serie.title, 
             description: serie.overview, 
