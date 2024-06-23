@@ -1,11 +1,12 @@
 const express = require('express')
-const { getAllFilms, getFilmGenreById, getFilmInfoById, getFilmVideoById } = require('../controllers/filmsController')
+const getFilm = require('../controllers/filmsController')
 
 const router = express.Router()
 
-router.get('/', getAllFilms)
-router.get('/genres/:genreId', getFilmGenreById)
-router.get('/info/:filmsId', getFilmInfoById)
-router.get('/video/:filmsId', getFilmVideoById)
+router.get('/', getFilm.getAllFilms)
+router.get('/genres/:genreId', getFilm.getFilmGenreById)
+router.get('/info/:filmsId', getFilm.getFilmInfoById)
+router.get('/video/:filmsId', getFilm.getFilmVideoById)
+router.get('/providers/:filmsId', getFilm.getFilmProvidersById)
 
 module.exports = router
