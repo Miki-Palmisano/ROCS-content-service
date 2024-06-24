@@ -15,5 +15,5 @@ app.use('/films', collectionFilms)
 app.use('/series', collectionSeries)
 
 app.listen(3001, () => {
-    console.log(`Service Content listening on port ${PORT}`)
+    console.log(`Service Content listening on port 3001`)
 })
