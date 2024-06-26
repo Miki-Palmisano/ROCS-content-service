@@ -153,11 +153,104 @@ const getFilmProvidersById = async (req, res) => {
   }
 }
 
+const searchFilm = async (req, res) => {
+  try {
+    const searchResponse = await axios.request({
+      method: 'GET',
+      url: `https://api.themoviedb.org/3/search/movie`,
+      headers: {
+        accept: 'application/json',
+        Authorization: `Bearer ${API_KEY}`
+      },
+      params: {
+        query: req.params.keywords,
+        watch_region: 'IT',
+        language: 'it-IT',
+        sort_by: 'popularity'
+      }
+    });
+    const films = searchResponse.data.results.map((film) => {
+      return {
+          type: "films", 
+          id: film.id, 
+          title: film.title, 
+          description: film.overview, 
+          year: film.releaseYear, 
+          genres: film.genre_ids,
+          rating: film.vote_average, 
+          img: film.poster_path === null ? null : "https://image.tmdb.org/t/p/w780" + film.poster_path,
+      };
+    });
+    res.json(films);
+  }
+  catch(error){
+    console.error(error);
+  }
+}
+
+const getFilmGenre = async (req, res) => {
+  try {
+    const response = await axios.request({
+      method: 'GET',
+      url: 'https://api.themoviedb.org/3/genre/movie/list',
+      headers: {
+        accept: 'application/json',
+        Authorization: `Bearer ${API_KEY}`
+      },
+      params: {
+        language: 'it-IT'
+      }
+    });
+    res.json(response.data.genres.map((genre) => { return {id: genre.id, name: genre.name}; }));
+  }
+  catch(error){
+    console.error(error);
+  }
+}
+
+const searchFilmGenre = async (req, res) => {
+  try {
+    const searchResponse = await axios.request({
+      method: 'GET',
+      url: `https://api.themoviedb.org/3/search/movie`,
+      headers: {
+        accept: 'application/json',
+        Authorization: `Bearer ${API_KEY}`
+      },
+      params: {
+        query: req.params.keywords,
+        watch_region: 'IT',
+        language: 'it-IT',
+        sort_by: 'popularity'
+      }
+    });
+    const films = searchResponse.data.results.map((film) => {
+      return{
+          type: "films", 
+          id: film.id, 
+          title: film.title, 
+          description: film.overview, 
+          year: film.releaseYear, 
+          genres: film.genre_ids,
+          rating: film.vote_average, 
+          img: film.poster_path === null ? null : "https://image.tmdb.org/t/p/w780" + film.poster_path,
+      };
+    });
+    res.json(films.filter((film) => film.genres.includes(parseInt(req.params.genreId))));
+  }
+  catch(error){
+    console.error(error);
+  }
+}
+
 
 module.exports = {
     getAllFilms,
     getFilmGenreById,
+    getFilmGenre,
     getFilmInfoById,
     getFilmVideoById,
-    getFilmProvidersById
+    getFilmProvidersById,
+    searchFilm,
+    searchFilmGenre
 }

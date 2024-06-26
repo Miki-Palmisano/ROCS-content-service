@@ -8,5 +8,9 @@ router.get('/genres/:genreId', getFilm.getFilmGenreById)
 router.get('/info/:filmsId', getFilm.getFilmInfoById)
 router.get('/video/:filmsId', getFilm.getFilmVideoById)
 router.get('/providers/:filmsId', getFilm.getFilmProvidersById)
+router.get('/search/:keywords', getFilm.searchFilm)
+router.get('/genres', getFilm.getFilmGenre)
+router.get('/genres/:genreId/search/:keywords/', getFilm.searchFilmGenre)
+
 
 module.exports = router

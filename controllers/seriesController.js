@@ -161,10 +161,104 @@ const getSeriesProvidersById = async (req, res) => {
     }
 } 
 
+const searchSerie = async (req, res) => {
+    try {
+        const searchResponse = await axios.request({
+            method: 'GET',
+            url: `https://api.themoviedb.org/3/search/tv`,
+            headers: {
+                accept: 'application/json',
+                Authorization: `Bearer ${API_KEY}`
+            }, 
+            params: {
+                query: req.params.keywords,
+                watch_region: 'IT',
+                language: 'it-IT',
+                sort_by: 'popularity'
+            }
+        });
+        const series = searchResponse.data.results.map((serie) => {
+            return {
+                type: "series", 
+                id: serie.id, 
+                title: serie.name, 
+                description: serie.overview, 
+                year: serie.first_air_date, 
+                genres: serie.genre_ids,
+                rating: serie.vote_average, 
+                img: serie.poster_path === null ? null : "https://image.tmdb.org/t/p/w780" + serie.poster_path,
+            };
+        });
+        res.json(series);
+    }
+    catch(error){
+        console.error(error);
+    }
+}
+
+const getSeriesGenre = async (req, res) => {
+    try {
+        const genreResponse = await axios.request({
+            method: 'GET',
+            url: 'https://api.themoviedb.org/3/genre/tv/list',
+            headers: {
+                accept: 'application/json',
+                Authorization: `Bearer ${API_KEY}`
+            }, 
+            params: {
+                language: 'it-IT'
+            }
+        });
+        res.json(genreResponse.data.genres.map((genre) => { return {id: genre.id, name: genre.name}; }));
+    }
+    catch(error){
+        console.error(error);
+    }
+}
+
+const searchSeriesGenre = async (req, res) => {
+    try {
+      const searchResponse = await axios.request({
+        method: 'GET',
+        url: `https://api.themoviedb.org/3/search/tv`,
+        headers: {
+          accept: 'application/json',
+          Authorization: `Bearer ${API_KEY}`
+        },
+        params: {
+          query: req.params.keywords,
+          watch_region: 'IT',
+          language: 'it-IT',
+          sort_by: 'popularity'
+        }
+      });
+      const series = searchResponse.data.results.map((serie) => {
+        return{
+            type: "series", 
+            id: serie.id, 
+            title: serie.title, 
+            description: serie.overview, 
+            year: serie.releaseYear, 
+            genres: serie.genre_ids,
+            rating: serie.vote_average, 
+            img: serie.poster_path === null ? null : "https://image.tmdb.org/t/p/w780" + serie.poster_path,
+        };
+      });
+      res.json(series.filter((serie) => serie.genres.includes(parseInt(req.params.genreId))));
+    }
+    catch(error){
+      console.error(error);
+    }
+  }
+
+
 module.exports = {
     getAllSeries,
     getSeriesGenreById,
+    getSeriesGenre,
     getSerieInfoById,
     getSeriesVideoById,
-    getSeriesProvidersById
+    getSeriesProvidersById,
+    searchSerie,
+    searchSeriesGenre
 }
