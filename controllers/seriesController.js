@@ -251,6 +251,59 @@ const searchSeriesGenre = async (req, res) => {
     }
   }
 
+  const getProviders = async (req, res) => {
+    try {
+      const response = await axios.request({
+        method: 'GET',
+        url: 'https://api.themoviedb.org/3/watch/providers/tv',
+        headers: {
+          accept: 'application/json',
+          Authorization: `Bearer ${API_KEY}`
+        },
+        params: {
+          watch_region: 'IT',
+          language: 'it-IT'
+        }
+      });
+      res.json(response.data.results.map((provider) => { return {id: provider.provider_id, name: provider.provider_name, logo: "https://image.tmdb.org/t/p/w780"+provider.logo_path}; }));
+    }
+    catch(error){
+      console.error(error);
+    }
+  }
+
+  const getSeriesTwoGenres = async (req, res) => {
+    try {
+      const genreResponse = await axios.request({
+        method: 'GET',
+        url: 'https://api.themoviedb.org/3/discover/tv',
+        headers: {
+          accept: 'application/json',
+          Authorization: `Bearer ${API_KEY}`
+        }, 
+        params: {
+          watch_region: 'IT',
+          language: 'it-IT',
+          with_genres: req.params.genreId + "," + req.params.secondGenreId
+        }
+      });
+      const Genreseries = genreResponse.data.results.map((serie) => {
+        return {
+            type: "series", 
+            id: serie.id, 
+            title: serie.title, 
+            description: serie.overview, 
+            year: serie.releaseYear, 
+            genres: serie.genre_ids,
+            rating: serie.vote_average, 
+            img: "https://image.tmdb.org/t/p/w780" + serie.poster_path,
+        };
+      });
+      res.json(Genreseries);
+    }catch(error){
+      console.error(error);
+    }
+  }
 
 module.exports = {
     getAllSeries,
@@ -260,5 +313,7 @@ module.exports = {
     getSeriesVideoById,
     getSeriesProvidersById,
     searchSerie,
-    searchSeriesGenre
+    searchSeriesGenre,
+    getProviders,
+    getSeriesTwoGenres
 }

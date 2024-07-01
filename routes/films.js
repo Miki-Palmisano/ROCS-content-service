@@ -11,6 +11,8 @@ router.get('/providers/:filmsId', getFilm.getFilmProvidersById)
 router.get('/search/:keywords', getFilm.searchFilm)
 router.get('/genres', getFilm.getFilmGenre)
 router.get('/genres/:genreId/search/:keywords/', getFilm.searchFilmGenre)
+router.get('/providers', getFilm.getProviders)
+router.get('/providers/:providerId/genres/:genreId', getFilm.getFilmWithProvidersAndGenres)
 
 
 module.exports = router

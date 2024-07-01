@@ -10,5 +10,7 @@ router.get('/providers/:seriesId', getSerie.getSeriesProvidersById)
 router.get('/search/:keywords', getSerie.searchSerie)
 router.get('/genres', getSerie.getSeriesGenre)
 router.get('/genres/:genreId/search/:keywords/', getSerie.searchSeriesGenre)
+router.get('/providers', getSerie.getProviders)
+router.get('/filter/genres/:genreId/genres/:secondGenreId', getSerie.getSeriesTwoGenres)
 
 module.exports = router;

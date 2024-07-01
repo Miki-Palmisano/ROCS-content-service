@@ -45,7 +45,6 @@ const getFilmGenreById = async (req, res) => {
         Authorization: `Bearer ${API_KEY}`
       }, 
       params: {
-        //with_watch_providers: '8|9', // Netflix and Amazon Prime
         watch_region: 'IT',
         language: 'it-IT',
         sort_by: 'popularity',
@@ -243,6 +242,60 @@ const searchFilmGenre = async (req, res) => {
   }
 }
 
+const getProviders = async (req, res) => {
+  try {
+    const response = await axios.request({
+      method: 'GET',
+      url: 'https://api.themoviedb.org/3/watch/providers/movie',
+      headers: {
+        accept: 'application/json',
+        Authorization: `Bearer ${API_KEY}`
+      },
+      params: {
+        watch_region: 'IT',
+        language: 'it-IT'
+      }
+    });
+    res.json(response.data.results.map((provider) => { return {id: provider.provider_id, name: provider.provider_name, logo: "https://image.tmdb.org/t/p/w780"+provider.logo_path}; }));
+  }
+  catch(error){
+    console.error(error);
+  }
+}
+
+const getFilmWithProvidersAndGenres = async (req, res) => {
+  try {
+    const response = await axios.request({
+      method: 'GET',
+      url: 'https://api.themoviedb.org/3/discover/movie',
+      headers: {
+        accept: 'application/json',
+        Authorization: `Bearer ${API_KEY}`
+      },
+      params: {
+        watch_region: 'IT',
+        language: 'it-IT',
+        with_watch_providers: req.params.providerId,
+        with_genres: req.params.genreId
+      }
+    });
+    const films = response.data.results.map((film) => {
+      return {
+          type: "films", 
+          id: film.id, 
+          title: film.title, 
+          description: film.overview, 
+          year: film.releaseYear, 
+          genres: film.genre_ids,
+          rating: film.vote_average, 
+          img: "https://image.tmdb.org/t/p/w780" + film.poster_path,
+      };
+    });
+    res.json(films);
+  } catch (error) {
+      console.error(error);
+  }
+}
 
 module.exports = {
     getAllFilms,
@@ -252,5 +305,7 @@ module.exports = {
     getFilmVideoById,
     getFilmProvidersById,
     searchFilm,
-    searchFilmGenre
+    searchFilmGenre,
+    getProviders,
+    getFilmWithProvidersAndGenres
 }
