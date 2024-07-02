@@ -26,7 +26,7 @@ const getAllFilms = async (req, res) => {
                 year: film.releaseYear, 
                 genres: film.genre_ids,
                 rating: film.vote_average, 
-                img: "https://image.tmdb.org/t/p/w780" + film.poster_path,
+                img: film.poster_path === null ? null : "https://image.tmdb.org/t/p/w780" + film.poster_path,
             };
         });
         res.json(films);
@@ -60,7 +60,7 @@ const getFilmGenreById = async (req, res) => {
           year: film.releaseYear, 
           genres: film.genre_ids,
           rating: film.vote_average, 
-          img: "https://image.tmdb.org/t/p/w780" + film.poster_path,
+          img: film.poster_path === null ? null : "https://image.tmdb.org/t/p/w780" + film.poster_path,
       };
     });
     res.json(Genrefilms);
@@ -288,7 +288,7 @@ const getFilmWithProvidersAndGenres = async (req, res) => {
           year: film.releaseYear, 
           genres: film.genre_ids,
           rating: film.vote_average, 
-          img: "https://image.tmdb.org/t/p/w780" + film.poster_path,
+          img: film.poster_path === null ? null : "https://image.tmdb.org/t/p/w780" + film.poster_path,
       };
     });
     res.json(films);

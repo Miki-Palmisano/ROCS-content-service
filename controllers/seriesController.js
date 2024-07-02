@@ -27,7 +27,7 @@ const getAllSeries = async (req, res) => {
                 year: serie.first_air_date, 
                 genres: serie.genre_ids,
                 rating: serie.vote_average, 
-                img: "https://image.tmdb.org/t/p/w780" + serie.poster_path,
+                img: serie.poster_path === null ? null : "https://image.tmdb.org/t/p/w780" + serie.poster_path,
             };
         });
         res.json(series);
@@ -62,7 +62,7 @@ const getSeriesGenreById = async (req, res) => {
             year: serie.releaseYear, 
             genres: serie.genre_ids,
             rating: serie.vote_average, 
-            img: "https://image.tmdb.org/t/p/w780" + serie.poster_path,
+            img: serie.poster_path === null ? null : "https://image.tmdb.org/t/p/w780" + serie.poster_path,
         };
       });
       res.json(genreSeries);
@@ -270,40 +270,42 @@ const searchSeriesGenre = async (req, res) => {
     catch(error){
       console.error(error);
     }
-  }
+}
 
-  const getSeriesTwoGenres = async (req, res) => {
+const getSeriesWithProvidersAndGenres = async (req, res) => {
     try {
-      const genreResponse = await axios.request({
+      const response = await axios.request({
         method: 'GET',
         url: 'https://api.themoviedb.org/3/discover/tv',
         headers: {
           accept: 'application/json',
           Authorization: `Bearer ${API_KEY}`
-        }, 
+        },
         params: {
           watch_region: 'IT',
           language: 'it-IT',
-          with_genres: req.params.genreId + "," + req.params.secondGenreId
+          with_watch_providers: req.params.providerId,
+          with_genres: req.params.genreId
         }
-      });
-      const Genreseries = genreResponse.data.results.map((serie) => {
-        return {
-            type: "series", 
-            id: serie.id, 
-            title: serie.title, 
-            description: serie.overview, 
-            year: serie.releaseYear, 
-            genres: serie.genre_ids,
-            rating: serie.vote_average, 
-            img: "https://image.tmdb.org/t/p/w780" + serie.poster_path,
-        };
-      });
-      res.json(Genreseries);
+    });
+    const series = response.data.results.map((serie) => {
+      return{
+          type: "series", 
+          id: serie.id, 
+          title: serie.title, 
+          description: serie.overview, 
+          year: serie.releaseYear, 
+          genres: serie.genre_ids,
+          rating: serie.vote_average, 
+          img: serie.poster_path === null ? null : "https://image.tmdb.org/t/p/w780" + serie.poster_path,
+      };
+    });
+    res.json(series);
     }catch(error){
       console.error(error);
     }
-  }
+}
+
 
 module.exports = {
     getAllSeries,
@@ -315,5 +317,5 @@ module.exports = {
     searchSerie,
     searchSeriesGenre,
     getProviders,
-    getSeriesTwoGenres
+    getSeriesWithProvidersAndGenres
 }
