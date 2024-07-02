@@ -8,7 +8,7 @@ const collectionSeries = require('./routes/series')
 const ALLOWED_ORIGINS = process.env.ALLOWED_ORIGINS;
 const cors = require('cors');
 
-const corsOption = {
+const corsOption = { 
     origin: ALLOWED_ORIGINS
 }
 
