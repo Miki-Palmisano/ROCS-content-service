@@ -1,24 +1,18 @@
 const axios = require('axios');
 const API_KEY = process.env.TMDB_API_KEY;
 
-const getAllSeries = async (req, res) => { 
+const makeRequest = async (url, params) => {
     try {
         const response = await axios.request({
             method: 'GET',
-            url: 'https://api.themoviedb.org/3/discover/tv',
+            url: url,
             headers: {
                 accept: 'application/json',
                 Authorization: `Bearer ${API_KEY}`
-            }, 
-            params: {
-                //with_watch_providers: '8|9', // Netflix and Amazon Prime
-                watch_region: 'IT',
-                language: 'it-IT',
-                sort_by: 'popularity.desc',
-            }
+            },
+            params: params
         });
-        console.log(response.data.results);
-        const series = response.data.results.map((serie) => {
+        return response.data.results.map((serie) => {
             return {
                 type: "series", 
                 id: serie.id, 
@@ -30,61 +24,26 @@ const getAllSeries = async (req, res) => {
                 img: serie.poster_path === null ? null : "https://image.tmdb.org/t/p/w780" + serie.poster_path,
             };
         });
-        res.json(series);
-    } catch (error) {
+    }
+    catch(error){
         console.error(error);
     }
 }
 
-const getSeriesGenreById = async (req, res) => { 
-    try {
-      const genreResponse = await axios.request({
-        method: 'GET',
-        url: 'https://api.themoviedb.org/3/discover/tv',
-        headers: {
-          accept: 'application/json',
-          Authorization: `Bearer ${API_KEY}`
-        }, 
-        params: {
-          //with_watch_providers: '8|9', // Netflix and Amazon Prime
-          watch_region: 'IT',
-          language: 'it-IT',
-          sort_by: 'popularity',
-          with_genres: req.params.genreId
-        }
-      });
-      const genreSeries = genreResponse.data.results.map((serie) => {
-        return {
-            type: "series", 
-            id: serie.id, 
-            title: serie.title, 
-            description: serie.overview, 
-            year: serie.releaseYear, 
-            genres: serie.genre_ids,
-            rating: serie.vote_average, 
-            img: serie.poster_path === null ? null : "https://image.tmdb.org/t/p/w780" + serie.poster_path,
-        };
-      });
-      res.json(genreSeries);
-    }catch(error){
-      console.error(error);
-    }
-  }
-
 const getSerieInfoById = async (req, res) => {
 try {
     const infoResponse = await axios.request({
-    method: 'GET',
-    url: `https://api.themoviedb.org/3/tv/${req.params.seriesId}`,
-    headers: {
-        accept: 'application/json',
-        Authorization: `Bearer ${API_KEY}`
-    }, 
-    params: {
-        watch_region: 'IT',
-        language: 'it-IT',
-        sort_by: 'popularity_desc'
-    }
+        method: 'GET',
+        url: `https://api.themoviedb.org/3/tv/${req.params.seriesId}`,
+        headers: {
+            accept: 'application/json',
+            Authorization: `Bearer ${API_KEY}`
+        }, 
+        params: {
+            watch_region: 'IT',
+            language: 'it-IT',
+            sort_by: 'popularity_desc'
+        }
     });
     const serie = infoResponse.data;
     const infoSerie = {
@@ -111,25 +70,39 @@ try {
 }
 
 const getSeriesVideoById = async (req, res) => {
-    try {
-        const videoResponse = await axios.request({
-            method: 'GET',
-            url: `https://api.themoviedb.org/3/tv/${req.params.seriesId}/videos`,
-            headers: {
-                accept: 'application/json',
-                Authorization: `Bearer ${API_KEY}`
-            }, 
-            params: {
-                watch_region: 'IT',
-                language: 'it-IT',
-                sort_by: 'popularity'
+    const languageCodes = ['it', 'en', 'fr', 'es', 'de', 'ja', 'ko', 'pt', 'ru', 'zh'];
+    let foundTrailer = false; 
+    let trailer = { key: null, site: null };
+
+    for (let i = 0; i < languageCodes.length && !foundTrailer; i++) {
+        try {
+            console.log(`Trying language ${languageCodes[i]}`)
+            const videoResponse = await axios.request({
+                method: 'GET',
+                url: `https://api.themoviedb.org/3/tv/${req.params.seriesId}/videos`,
+                headers: {
+                    accept: 'application/json',
+                    Authorization: `Bearer ${API_KEY}`
+                }, 
+                params: {
+                    watch_region: 'IT',
+                    language: languageCodes[i]
+                }
+            });
+            if (videoResponse.data.results.length !== 0) {
+                trailer = {
+                    key: videoResponse.data.results[0].key,
+                    site: videoResponse.data.results[0].site
+                };
+                foundTrailer = true;
             }
-        });
-        res.json(Object.keys(videoResponse.data.results).length === 0 ? {key: null, site: null} : {key: videoResponse.data.results[0].key, site: videoResponse.data.results[0].site});
+        }
+        catch(error){
+            console.error(error);
+        }
     }
-    catch(error){
-        console.error(error);
-    }
+
+    res.json(trailer);
 }
 
 const getSeriesProvidersById = async (req, res) => {
@@ -163,33 +136,9 @@ const getSeriesProvidersById = async (req, res) => {
 
 const searchSerie = async (req, res) => {
     try {
-        const searchResponse = await axios.request({
-            method: 'GET',
-            url: `https://api.themoviedb.org/3/search/tv`,
-            headers: {
-                accept: 'application/json',
-                Authorization: `Bearer ${API_KEY}`
-            }, 
-            params: {
-                query: req.params.keywords,
-                watch_region: 'IT',
-                language: 'it-IT',
-                sort_by: 'popularity'
-            }
-        });
-        const series = searchResponse.data.results.map((serie) => {
-            return {
-                type: "series", 
-                id: serie.id, 
-                title: serie.name, 
-                description: serie.overview, 
-                year: serie.first_air_date, 
-                genres: serie.genre_ids,
-                rating: serie.vote_average, 
-                img: serie.poster_path === null ? null : "https://image.tmdb.org/t/p/w780" + serie.poster_path,
-            };
-        });
-        res.json(series);
+        const { genreId } = req.query;
+        const response = await makeRequest('https://api.themoviedb.org/3/search/tv', {query: req.params.keywords});
+        res.json( genreId ? response.filter((serie) => serie.genres.includes(parseInt(genreId))) : response);
     }
     catch(error){
         console.error(error);
@@ -216,41 +165,6 @@ const getSeriesGenre = async (req, res) => {
     }
 }
 
-const searchSeriesGenre = async (req, res) => {
-    try {
-      const searchResponse = await axios.request({
-        method: 'GET',
-        url: `https://api.themoviedb.org/3/search/tv`,
-        headers: {
-          accept: 'application/json',
-          Authorization: `Bearer ${API_KEY}`
-        },
-        params: {
-          query: req.params.keywords,
-          watch_region: 'IT',
-          language: 'it-IT',
-          sort_by: 'popularity'
-        }
-      });
-      const series = searchResponse.data.results.map((serie) => {
-        return{
-            type: "series", 
-            id: serie.id, 
-            title: serie.title, 
-            description: serie.overview, 
-            year: serie.releaseYear, 
-            genres: serie.genre_ids,
-            rating: serie.vote_average, 
-            img: serie.poster_path === null ? null : "https://image.tmdb.org/t/p/w780" + serie.poster_path,
-        };
-      });
-      res.json(series.filter((serie) => serie.genres.includes(parseInt(req.params.genreId))));
-    }
-    catch(error){
-      console.error(error);
-    }
-  }
-
   const getProviders = async (req, res) => {
     try {
       const response = await axios.request({
@@ -272,50 +186,33 @@ const searchSeriesGenre = async (req, res) => {
     }
 }
 
-const getSeriesWithProvidersAndGenres = async (req, res) => {
+const getSeries = async (req, res) => {
     try {
-      const response = await axios.request({
-        method: 'GET',
-        url: 'https://api.themoviedb.org/3/discover/tv',
-        headers: {
-          accept: 'application/json',
-          Authorization: `Bearer ${API_KEY}`
-        },
-        params: {
-          watch_region: 'IT',
-          language: 'it-IT',
-          with_watch_providers: req.params.providerId,
-          with_genres: req.params.genreId
-        }
-    });
-    const series = response.data.results.map((serie) => {
-      return{
-          type: "series", 
-          id: serie.id, 
-          title: serie.title, 
-          description: serie.overview, 
-          year: serie.releaseYear, 
-          genres: serie.genre_ids,
-          rating: serie.vote_average, 
-          img: serie.poster_path === null ? null : "https://image.tmdb.org/t/p/w780" + serie.poster_path,
-      };
-    });
-    res.json(series);
-    }catch(error){
-      console.error(error);
+        const { providerId, genreId } = req.query;
+        const params = {
+            watch_region: 'IT',
+            language: 'it-IT',
+            sort_by: 'popularity.desc'
+        };
+
+        providerId ? params.with_watch_providers = providerId : null;
+        genreId ? params.with_genres = genreId : null;
+
+        const response = await makeRequest('https://api.themoviedb.org/3/discover/tv', params);
+        res.json(response);
+    }
+    catch(error){
+        console.error(error);
     }
 }
 
 
 module.exports = {
-    getAllSeries,
-    getSeriesGenreById,
     getSeriesGenre,
     getSerieInfoById,
     getSeriesVideoById,
     getSeriesProvidersById,
     searchSerie,
-    searchSeriesGenre,
     getProviders,
-    getSeriesWithProvidersAndGenres
+    getSeries
 }
