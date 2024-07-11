@@ -103,7 +103,7 @@ const searchFilm = async (req, res) => {
   for(let i = 1 ; list.length < 20; i++){
     try {
       const { genreId, keywords } = req.query;
-      let response = await makeRequest('https://api.themoviedb.org/3/search/movie', {query: keywords, page: i});
+      let response = await makeRequest('https://api.themoviedb.org/3/search/movie', {query: keywords, page: i, watch_region: 'IT'});
       let templated = dataTemplate(response);
       if(genreId) templated = templated.filter((film) => film.genres.includes(parseInt(genreId.split(','))))
       list = [...list, ...templated];

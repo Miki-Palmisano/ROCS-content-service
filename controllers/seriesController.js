@@ -12,39 +12,31 @@ const makeRequest = async (url, params) => {
             },
             params: params
         });
-        return response.data.results.map((serie) => {
-            return {
-                type: "series", 
-                id: serie.id, 
-                title: serie.name, 
-                description: serie.overview, 
-                year: serie.first_air_date, 
-                genres: serie.genre_ids,
-                rating: serie.vote_average, 
-                img: serie.poster_path === null ? null : "https://image.tmdb.org/t/p/w780" + serie.poster_path,
-            };
-        });
+        return response;
     }
     catch(error){
         console.error(error);
     }
 }
 
+const dataTemplate = (response) => {
+    return response.data.results.map((serie) => {
+        return {
+            type: "series", 
+            id: serie.id, 
+            title: serie.name, 
+            description: serie.overview, 
+            year: serie.first_air_date, 
+            genres: serie.genre_ids,
+            rating: serie.vote_average, 
+            img: serie.poster_path === null ? null : "https://image.tmdb.org/t/p/w780" + serie.poster_path,
+        };
+    });
+}
+
 const getSerieInfoById = async (req, res) => {
 try {
-    const infoResponse = await axios.request({
-        method: 'GET',
-        url: `https://api.themoviedb.org/3/tv/${req.params.seriesId}`,
-        headers: {
-            accept: 'application/json',
-            Authorization: `Bearer ${API_KEY}`
-        }, 
-        params: {
-            watch_region: 'IT',
-            language: 'it-IT',
-            sort_by: 'popularity_desc'
-        }
-    });
+    const infoResponse = await makeRequest(`https://api.themoviedb.org/3/tv/${req.params.seriesId}`, {language: 'it-IT'});
     const serie = infoResponse.data;
     const infoSerie = {
         type: "series",
@@ -77,18 +69,7 @@ const getSeriesVideoById = async (req, res) => {
     for (let i = 0; i < languageCodes.length && !foundTrailer; i++) {
         try {
             console.log(`Trying language ${languageCodes[i]}`)
-            const videoResponse = await axios.request({
-                method: 'GET',
-                url: `https://api.themoviedb.org/3/tv/${req.params.seriesId}/videos`,
-                headers: {
-                    accept: 'application/json',
-                    Authorization: `Bearer ${API_KEY}`
-                }, 
-                params: {
-                    watch_region: 'IT',
-                    language: languageCodes[i]
-                }
-            });
+            const videoResponse = await makeRequest(`https://api.themoviedb.org/3/tv/${req.params.seriesId}/videos`, {watch_region: 'IT', language: languageCodes[i]});
             if (videoResponse.data.results.length !== 0) {
                 trailer = {
                     key: videoResponse.data.results[0].key,
@@ -107,18 +88,7 @@ const getSeriesVideoById = async (req, res) => {
 
 const getSeriesProvidersById = async (req, res) => {
     try {
-        const providersResponse = await axios.request({
-            method: 'GET',
-            url: `https://api.themoviedb.org/3/tv/${req.params.seriesId}/watch/providers`,
-            headers: {
-                accept: 'application/json',
-                Authorization: `Bearer ${API_KEY}`
-            }, 
-            params: {
-                watch_region: 'IT',
-                language: 'it-IT',
-            }
-        });
+        const providersResponse = await makeRequest(`https://api.themoviedb.org/3/tv/${req.params.seriesId}/watch/providers`, {watch_region: 'IT', language: 'it-IT'});
         res.json(
             Object.keys(providersResponse.data.results).length === 0 || !providersResponse.data.results.IT
             ? null
@@ -136,28 +106,18 @@ const getSeriesProvidersById = async (req, res) => {
 
 const searchSerie = async (req, res) => {
     try {
-        const { genreId } = req.query;
-        const response = await makeRequest('https://api.themoviedb.org/3/search/tv', {query: req.params.keywords});
-        res.json( genreId ? response.filter((serie) => serie.genres.includes(parseInt(genreId))) : response);
+        const { keywords } = req.query;
+        let response = await makeRequest('https://api.themoviedb.org/3/search/tv', {query: keywords, watch_region:'IT', language: 'it-IT'});
+        res.json(dataTemplate(response));
     }
     catch(error){
         console.error(error);
     }
-}
+  }
 
 const getSeriesGenre = async (req, res) => {
     try {
-        const genreResponse = await axios.request({
-            method: 'GET',
-            url: 'https://api.themoviedb.org/3/genre/tv/list',
-            headers: {
-                accept: 'application/json',
-                Authorization: `Bearer ${API_KEY}`
-            }, 
-            params: {
-                language: 'it-IT'
-            }
-        });
+        const genreResponse = await makeRequest('https://api.themoviedb.org/3/genre/tv/list', {language: 'it-IT', watch_region: 'IT'});
         res.json(genreResponse.data.genres.map((genre) => { return {id: genre.id, name: genre.name}; }));
     }
     catch(error){
@@ -165,20 +125,9 @@ const getSeriesGenre = async (req, res) => {
     }
 }
 
-  const getProviders = async (req, res) => {
+const getProviders = async (req, res) => {
     try {
-      const response = await axios.request({
-        method: 'GET',
-        url: 'https://api.themoviedb.org/3/watch/providers/tv',
-        headers: {
-          accept: 'application/json',
-          Authorization: `Bearer ${API_KEY}`
-        },
-        params: {
-          watch_region: 'IT',
-          language: 'it-IT'
-        }
-      });
+      const response = await makeRequest('https://api.themoviedb.org/3/watch/providers/tv', {watch_region: 'IT', language: 'it-IT'});
       res.json(response.data.results.map((provider) => { return {id: provider.provider_id, name: provider.provider_name, logo: "https://image.tmdb.org/t/p/w780"+provider.logo_path}; }));
     }
     catch(error){
@@ -199,7 +148,7 @@ const getSeries = async (req, res) => {
         genreId ? params.with_genres = genreId : null;
 
         const response = await makeRequest('https://api.themoviedb.org/3/discover/tv', params);
-        res.json(response);
+        res.json(dataTemplate(response));
     }
     catch(error){
         console.error(error);
