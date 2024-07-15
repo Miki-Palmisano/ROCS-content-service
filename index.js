@@ -7,6 +7,7 @@ const collectionFilms = require('./routes/films')
 const collectionSeries = require('./routes/series')
 const ALLOWED_ORIGINS = process.env.ALLOWED_ORIGINS;
 const cors = require('cors');
+const axios = require('axios');
 
 const corsOption = { 
     origin: ALLOWED_ORIGINS
@@ -26,6 +27,7 @@ app.use('/state', (req, res) => {
         console.log('Server is running');
         res.status(200).json({ message: 'Server is running', data: response.data });
     }).catch(error => {
+        console.log('Server is not running');
         res.status(500).json({ message: 'Server is not running', error: error });
     });
 });

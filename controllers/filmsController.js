@@ -73,7 +73,8 @@ const getFilmInfoById = async (req, res) => {
 const getFilmVideoById = async (req, res) => {
   try {
     const videoResponse = await makeRequest(`https://api.themoviedb.org/3/movie/${req.params.filmsId}/videos`, {});
-    res.json(Object.keys(videoResponse.data.results).length === 0 ? {key: null, site: null} : {key: videoResponse.data.results[0].key, site: videoResponse.data.results[0].site});
+    const video = videoResponse.data.results.filter((video) => video.type === 'Trailer');
+    res.json(Object.keys(video).length === 0 ? {key: null, site: null} : {key: video[0].key, site: video[0].site});
   }catch(error){
     console.error(error);
   }
